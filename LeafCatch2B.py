@@ -114,10 +114,171 @@ class Game(simpleGE.Scene):
             print(f"{self.level}")
             self.stop()
             
-
+class Instructions(simpleGE.Scene):
+    def __init__(self, score):
+        super().__init__()
+        self.setImage("FallScene.png")
+        
+        self.response = "Play"
+        
+        self.instructions = simpleGE.MultiLabel()
+        self.instructions.textLines = ["You are Wednesday the Black Cat.",
+                                  "Move with the left and right arrow keys",
+                                  "and catch 10 leaves while avoiding apples to win.",
+                                  "Good luck!"]
+        self.instructions.center = (320, 240)
+        self.instructions.size = (500, 250)
+        
+        self.prevScore = score
+        self.lblScore = simpleGE.Label()
+        self.lblScore.text = f"Last score: {self.prevScore}"
+        self.lblScore.center = (320, 400)
+        
+        self.btnPlay = simpleGE.Button()
+        self.btnPlay.text = "Play (up)"
+        self.btnPlay.center = (100, 400)
+        
+        self.btnQuit = simpleGE.Button()
+        self.btnQuit.text = "Quit (down)"
+        self.btnQuit.center = (550, 400)
+        
+        self.sprites = [self.instructions,
+                        self.lblScore,
+                        self.btnQuit,
+                        self.btnPlay]
+    def process (self):
+        if self.btnQuit.clicked:
+            self.response = "Quit"
+            self.stop()
+            
+        if self.btnPlay.clicked:
+            self.response = "Play"
+            self.stop()
+            
+        if self.isKeyPressed(pygame.K_UP):
+            self.response = "Play"
+            self.stop()
+        
+        if self.isKeyPressed(pygame.K_DOWN):
+            self.response = "Quit"
+            self.stop()
+            
+class Win(simpleGE.Scene):
+    def __init__(self, score):
+        super().__init__()
+        self.setImage("FallScene.png")
+        
+        self.win = simpleGE.MultiLabel()
+        self.win.textLines = ["Congratulations!",
+                              "You won!"]
+        self.win.center = (320, 240)
+        self.win.size = (500, 250)
+        
+        self.prevScore = score
+        self.lblScore = simpleGE.Label()
+        self.lblScore.text = f"Score: {self.prevScore}"
+        self.lblScore.center = (320, 400)
+        
+        self.btnPlayAgain = simpleGE.Button()
+        self.btnPlayAgain.text = "Play Again (up)"
+        self.btnPlayAgain.center = (100, 400)
+        
+        self.btnQuit = simpleGE.Button()
+        self.btnQuit.text = "Quit (down)"
+        self.btnQuit.center = (550, 400)
+        
+        self.sprites = [self.win,
+                        self.lblScore,
+                        self.btnPlayAgain,
+                        self.btnQuit]
+        
+    def process(self):
+        if self.btnQuit.clicked:
+            self.response = "Quit"
+            self.stop()
+        if self.btnPlayAgain.clicked:
+            self.response = "Play Again"
+            self.stop()
+        if self.isKeyPressed(pygame.K_DOWN):
+            self.response = "Quit"
+            self.stop()
+        if self.isKeyPressed(pygame.K_UP):
+            self.response = "Play Again"
+            self.stop()
+            
+class Lose(simpleGE.Scene):
+    def __init__(self, score):
+        super().__init__()
+        self.setImage("FallScene.png")
+        
+        self.lose = simpleGE.MultiLabel()
+        self.lose.textLines = ["Uh-oh!",
+                               "You didn't catch enough leaves!"]
+        self.lose.center = (320, 240)
+        self.lose.size = (500, 250)
+        
+        self.prevScore = score
+        self.lblScore = simpleGE.Label()
+        self.lblScore.text = f"Score: {self.prevScore}"
+        self.lblScore.center = (320, 400)
+        
+        self.btnPlayAgain = simpleGE.Button()
+        self.btnPlayAgain.text = "Play Again (up)"
+        self.btnPlayAgain.center = (100, 400)
+        
+        self.btnQuit = simpleGE.Button()
+        self.btnQuit.text = "Quit (down)"
+        self.btnQuit.center = (550, 400)
+        
+        self.sprites = [self.lose,
+                        self.lblScore,
+                        self.btnPlayAgain,
+                        self.btnQuit]
+    def process(self):
+        if self.btnQuit.clicked:
+            self.response = "Quit"
+            self.stop()
+        if self.btnPlayAgain.clicked:
+            self.response = "Play Again"
+            self.stop()
+        if self.isKeyPressed(pygame.K_DOWN):
+            self.response = "Quit"
+            self.stop()
+        if self.isKeyPressed(pygame.K_UP):
+            self.response = "Play Again"
+            self.stop()
+        
 def main():
-    game = Game()
-    game.start()
+    keepGoing = True
+    score = 0
+    instructions = Instructions(score)
+    instructions.start()
+    if instructions.response == "Play":
+        game = Game()
+        game.start()
+        score = game.score
+    if instructions.response == "Quit":
+        instructions.stop()
+        
+    while keepGoing:
+        if game.level == "Win":
+            win = Win(score)
+            win.start()
+            if win.response == "Quit":
+                keepGoing = False
+            if win.response == "Play Again":
+                game = Game()
+                game.start()
+                score = game.score
+        if game.level == "Lose":
+            lose = Lose(score)
+            lose.start()
+            if lose.response == "Quit":
+                keepGoing = False
+            if lose.response == "Play Again":
+                game = Game()
+                game.start()
+                score = game.score
 
 if __name__ == "__main__":
     main()
